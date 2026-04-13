@@ -1,1 +1,8 @@
 alert icmp any any -> $HOME_NET any (msg:"CUSTOM ICMP Ping Detected"; itype:8; sid:200000; rev:1; metadata:mitre_technique T1595;)
+alert tcp any any -> $HOME_NET any (msg:"CUSTOM TCP SYN Port Scan Detected"; flags:S; threshold: type both, track by_src, count 20, seconds 10; classtype:network-scan; sid:200001; rev:1; metadata:mitre_technique T1046;)
+alert udp any any -> $HOME_NET any (msg:"CUSTOM UDP Port Scan Detected"; threshold: type both, track by_src, count 20, seconds 10; classtype:network-scan; sid:200002; rev:1; metadata:mitre_technique T1046;)
+alert tcp any any -> $HOME_NET 22 (msg:"CUSTOM SSH Brute Force Detected"; flags:S; threshold: type both, track by_src, count 5, seconds 60; classtype:attempted-admin; sid:200003; rev:1; metadata:mitre_technique T1110.001;)
+alert dns any any -> any 53 (msg:"CUSTOM DNS Tunneling - High Query Rate"; threshold: type both, track by_src, count 50, seconds 10; classtype:policy-violation; sid:200004; rev:1; metadata:mitre_technique T1071.004;)
+alert http any any -> any any (msg:"CUSTOM C2 HTTP Beaconing Detected"; http.uri; content:"/beacon"; threshold: type both, track by_src, count 5, seconds 60; classtype:trojan-activity; sid:200005; rev:1; metadata:mitre_technique T1071.001;)
+alert icmp any any -> $HOME_NET any (msg:"CUSTOM ICMP Flood Detected"; itype:8; threshold: type both, track by_src, count 100, seconds 5; classtype:attempted-recon; sid:200006; rev:1; metadata:mitre_technique T1595;)
+alert tcp any any -> $HOME_NET [445,3389] (msg:"CUSTOM Lateral Movement - SMB/RDP Scan Detected"; flags:S; threshold: type both, track by_src, count 5, seconds 60; classtype:network-scan; sid:200007; rev:1; metadata:mitre_technique T1021;)
