@@ -1,0 +1,4 @@
+Warning: zeekctl option UseWebSocket is set, but websockets non-functional: Failed to import websockets module - is it installed? (ModuleNotFoundError("No module named 'websockets'"))
+Name         Type       Host          Status    Pid    Started
+zeek         standalone localhost     running   5849   13 Apr 06:33:04
+{"ts":1776061989.639286,"uid":"C9LsIQ3vqSofDekk9e","id.orig_h":"192.168.0.133","id.orig_p":46887,"id.resp_h":"192.168.0.224","id.resp_p":1514,"proto":"tcp","duration":0.0005209445953369141,"orig_bytes":0,"resp_bytes":0,"conn_state":"RSTRH","local_orig":true,"local_resp":true,"missed_bytes":0,"history":"Cr","orig_pkts":0,"orig_ip_bytes":0,"resp_pkts":1,"resp_ip_bytes":40,"ip_proto":6}
