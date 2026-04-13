@@ -1,4 +1,5 @@
 # Network IDS & Traffic Analysis Lab — Suricata + Zeek + Wazuh
+> **Status: Active development — Phase 1 complete, Phase 2 in progress**
 
 A hands-on Network Intrusion Detection and Traffic Analysis lab built to detect real-world network-layer attacks using custom Suricata rules, Zeek protocol logs, and Wazuh SIEM — all mapped to the MITRE ATT&CK framework.
 
