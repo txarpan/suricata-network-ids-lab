@@ -1,8 +1,0 @@
-04/13/2026-06:18:45.660720  [**] [1:200000:1] CUSTOM ICMP Ping Detected [**] [Classification: (null)] [Priority: 3] {ICMP} 192.168.0.161:8 -> 192.168.0.133:0
-04/13/2026-11:16:54.767997  [**] [1:200001:1] CUSTOM TCP SYN Port Scan Detected [**] [Classification: Detection of a Network Scan] [Priority: 3] {TCP} 192.168.0.161:44244 -> 192.168.0.133:25
-04/13/2026-11:30:36.373107  [**] [1:200002:1] CUSTOM UDP Port Scan Detected [**] [Classification: Detection of a Network Scan] [Priority: 3] {UDP} 192.168.0.161:49814 -> 192.168.0.133:500
-04/13/2026-11:34:32.094908  [**] [1:200003:1] CUSTOM SSH Brute Force Detected [**] [Classification: Attempted Administrator Privilege Gain] [Priority: 1] {TCP} 192.168.0.161:39270 -> 192.168.0.133:22
-04/13/2026-11:40:14.996164  [**] [1:200004:1] CUSTOM DNS Tunneling - High Query Rate [**] [Classification: Potential Corporate Privacy Violation] [Priority: 1] {UDP} 192.168.0.161:58502 -> 192.168.0.1:53
-04/13/2026-11:54:08.927267  [**] [1:200005:1] CUSTOM C2 HTTP Beaconing Detected [**] [Classification: A Network Trojan was detected] [Priority: 1] {TCP} 192.168.0.161:59084 -> 192.168.0.133:80
-04/13/2026-11:56:19.406350  [**] [1:200006:1] CUSTOM ICMP Flood Detected [**] [Classification: Attempted Information Leak] [Priority: 2] {ICMP} 192.168.0.161:8 -> 192.168.0.133:0
-04/13/2026-11:59:51.961373  [**] [1:200007:1] CUSTOM Lateral Movement - SMB/RDP Scan Detected [**] [Classification: Detection of a Network Scan] [Priority: 3] {TCP} 192.168.0.161:44175 -> 192.168.0.133:3389
