@@ -1,32 +1,23 @@
 #!/usr/bin/env python3
 """
 SOAR Auto-Response v2 — Suricata + Wazuh Integration
-Monitors Wazuh API for Suricata alerts and automatically blocks
-attacker IPs via UFW on the Ubuntu victim machine.
+Monitors Wazuh alerts.json for Suricata detections and
+automatically blocks attacker IPs via UFW.
 
 Author: Arpan Mukherjee
 Project: Suricata Network IDS Lab
-MITRE: T1059 (response automation)
 """
 
-import requests
 import subprocess
 import json
 import time
-import urllib3
 from datetime import datetime
 
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+CONTAINER   = "single-node-wazuh.manager-1"
+ALERTS_FILE = "/var/ossec/logs/alerts/alerts.json"
+CHECK_INTERVAL = 30
+BLOCKED_IPS = set()
 
-# --- Configuration ---
-WAZUH_HOST = "https://192.168.0.224:55000"
-WAZUH_USER = "wazuh"
-WAZUH_PASS = "wazuh"
-AGENT_ID   = "001"
-CHECK_INTERVAL = 30  # seconds between API polls
-BLOCKED_IPS = set()  # track already blocked IPs
-
-# Suricata rule IDs to trigger auto-block
 TRIGGER_RULES = {
     "200001": "TCP SYN Port Scan",
     "200003": "SSH Brute Force",
@@ -39,97 +30,66 @@ def log(msg):
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"[{ts}] {msg}")
 
-def get_token():
-    """Authenticate to Wazuh API and return JWT token."""
+def get_alerts():
+    """Read last 50 lines from Wazuh alerts.json inside Docker container."""
     try:
-        resp = requests.post(
-            f"{WAZUH_HOST}/security/user/authenticate",
-            auth=(WAZUH_USER, WAZUH_PASS),
-            verify=False,
-            timeout=10
+        result = subprocess.run(
+            ["docker", "exec", CONTAINER, "tail", "-50", ALERTS_FILE],
+            capture_output=True, text=True
         )
-        if resp.status_code == 200:
-            token = resp.json()["data"]["token"]
-            log("Authenticated to Wazuh API successfully")
-            return token
-        else:
-            log(f"Auth failed: {resp.status_code}")
-            return None
+        alerts = []
+        for line in result.stdout.strip().split("\n"):
+            try:
+                alerts.append(json.loads(line))
+            except Exception:
+                continue
+        return alerts
     except Exception as e:
-        log(f"Auth error: {e}")
-        return None
-
-def get_recent_alerts(token):
-    """Fetch recent Suricata alerts from Wazuh API."""
-    headers = {"Authorization": f"Bearer {token}"}
-    try:
-        resp = requests.get(
-            f"{WAZUH_HOST}/alerts",
-            headers=headers,
-            params={
-                "agent_ids": AGENT_ID,
-                "limit": 50,
-                "sort": "-timestamp"
-            },
-            verify=False,
-            timeout=10
-        )
-        if resp.status_code == 200:
-            return resp.json().get("data", {}).get("affected_items", [])
-        else:
-            log(f"Alert fetch failed: {resp.status_code}")
-            return []
-    except Exception as e:
-        log(f"Alert fetch error: {e}")
+        log(f"Error reading alerts: {e}")
         return []
 
 def extract_attacker_ip(alert):
-    """Extract source IP from Suricata EVE JSON alert."""
+    """Extract source IP and Suricata signature ID from alert."""
     try:
         data = alert.get("data", {})
         src_ip = data.get("src_ip")
-        rule_id = data.get("alert", {}).get("signature_id", "")
-        return src_ip, str(rule_id)
+        sig_id = str(data.get("alert", {}).get("signature_id", ""))
+        return src_ip, sig_id
     except Exception:
         return None, None
 
 def block_ip(ip):
-    """Block attacker IP via UFW."""
+    """Block attacker IP via UFW on Ubuntu victim machine."""
     if ip in BLOCKED_IPS:
         return
     try:
         result = subprocess.run(
-            ["sudo", "ufw", "deny", "from", ip],
-            capture_output=True,
-            text=True
+            ["ssh", "vboxuser@192.168.0.133", f"sudo ufw deny from {ip}"],
+            capture_output=True, text=True
         )
         if result.returncode == 0:
             BLOCKED_IPS.add(ip)
-            log(f"BLOCKED: {ip} via UFW")
+            log(f"BLOCKED: {ip} via UFW on Ubuntu")
         else:
             log(f"UFW block failed for {ip}: {result.stderr}")
     except Exception as e:
-        log(f"Block error for {ip}: {e}")
+        log(f"Block error: {e}")
 
 def main():
     log("SOAR Auto-Response v2 starting...")
+    log(f"Container: {CONTAINER}")
     log(f"Monitoring rules: {list(TRIGGER_RULES.keys())}")
     log(f"Poll interval: {CHECK_INTERVAL}s")
     print("-" * 60)
 
-    token = get_token()
-    if not token:
-        log("Failed to authenticate. Exiting.")
-        return
-
     while True:
-        alerts = get_recent_alerts(token)
+        alerts = get_alerts()
         for alert in alerts:
-            src_ip, rule_id = extract_attacker_ip(alert)
-            if src_ip and rule_id in TRIGGER_RULES:
-                rule_name = TRIGGER_RULES[rule_id]
+            src_ip, sig_id = extract_attacker_ip(alert)
+            if src_ip and sig_id in TRIGGER_RULES:
+                rule_name = TRIGGER_RULES[sig_id]
                 if src_ip not in BLOCKED_IPS:
-                    log(f"ALERT: Rule {rule_id} ({rule_name}) — attacker IP: {src_ip}")
+                    log(f"ALERT: Rule {sig_id} ({rule_name}) — attacker: {src_ip}")
                     block_ip(src_ip)
         time.sleep(CHECK_INTERVAL)
 
