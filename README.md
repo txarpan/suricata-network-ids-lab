@@ -1,5 +1,5 @@
 # Network IDS & Traffic Analysis Lab — Suricata + Zeek + Wazuh
-> **Status: Active development — Phase 1 complete, Phase 2 in progress**
+> **Status: Complete**
 
 A hands-on Network Intrusion Detection and Traffic Analysis lab built to detect real-world network-layer attacks using custom Suricata rules, Zeek protocol logs, and Wazuh SIEM — all mapped to the MITRE ATT&CK framework.
 
@@ -70,11 +70,11 @@ Located in `/rules/custom.rules`
 
 | ID | Title | Status |
 |----|-------|--------|
-| CS-001 | TCP/UDP Port Scan Detection | 🔄 In Progress |
-| CS-002 | DNS Tunneling Detection & Analysis | 🔄 In Progress |
-| CS-003 | C2 HTTP Beaconing Detection | 🔄 In Progress |
-| CS-004 | SSH Brute Force — Network vs Host Correlation | 🔄 In Progress |
-| CS-005 | Lateral Movement Detection | 🔄 In Progress |
+| CS-001 | TCP/UDP Port Scan Detection | ✅ Complete |
+| CS-002 | DNS Tunneling Detection & Analysis | ✅ Complete |
+| CS-003 | C2 HTTP Beaconing Detection | ✅ Complete |
+| CS-004 | SSH Brute Force — Network vs Host Correlation | ✅ Complete |
+| CS-005 | Lateral Movement Detection | ✅ Complete |
 
 ---
 
@@ -83,27 +83,20 @@ Located in `/rules/custom.rules`
 suricata-network-ids-lab/
 ├── README.md
 ├── rules/
-│   └── custom.rules                    # 12 custom Suricata rules, MITRE mapped
-├── zeek/
-│   ├── local.zeek                      # custom Zeek scripts
-│   └── zeek-queries.md                 # threat hunting queries
+│   └── custom.rules
 ├── wazuh-integration/
-│   ├── ossec.conf.snippet              # Suricata + Zeek Wazuh agent config
-│   └── suricata.yaml.backup            # configured Suricata main config
-├── attack-simulation/
-│   ├── c2-beacon.py                    # C2 beaconing simulation script
-│   └── dns-tunnel-sim.sh               # DNS tunneling test script
+│   └── ossec.conf.snippet
 ├── soar/
-│   └── auto-block-v2.py               # Suricata alert → UFW auto-block
+│   ├── auto-block-v2.py
+│   └── README.md
 ├── reports/
-│   ├── CS-001-Port-Scan.md
+│   ├── CS-001-Port-Scan-Detection.md
 │   ├── CS-002-DNS-Tunneling.md
-│   ├── CS-003-C2-Beaconing.md
-│   ├── CS-004-SSH-Correlation.md
-│   ├── CS-005-Lateral-Movement.md
+│   ├── CS-003-C2-HTTP-Beaconing.md
+│   ├── CS-004-SSH-Brute-Force-Correlation.md
+│   ├── CS-005-Lateral-Movement-Detection.md
 │   └── FP-Tuning-Report.md
-├── logs/                               # sanitized sample EVE JSON, Zeek logs
-└── screenshots/                        # evidence and verification proof
+└── screenshots/
 
 ---
 
